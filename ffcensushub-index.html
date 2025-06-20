@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FFCensusHub - Free Fire Sensitivity Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e2f;
+      color: #fff;
+      padding: 1rem;
+      min-height: 100vh;
+    }
+    header {
+      background: #6a1b9a;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    label, select, button {
+      display: block;
+      margin: 1rem auto 0;
+      width: 100%;
+      max-width: 400px;
+    }
+    select, button {
+      padding: 0.7rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      background: #4caf50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .card {
+      background: #2e2e3e;
+      padding: 1rem;
+      border-radius: 10px;
+      max-width: 420px;
+      margin: 1rem auto;
+    }
+    .bar {
+      height: 8px;
+      background: #4caf50;
+      border-radius: 5px;
+      margin: 4px 0 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <header id="header">FFCensusHub</header>
+
+  <button id="show-settings-btn">Show Best Sensitivity for My Device</button>
+  <button id="save-image-btn" style="display:none;">Save as Image</button>
+
+  <div id="result" style="display:none;">
+    <div id="sensitivity-values"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const showSettingsBtn = document.getElementById('show-settings-btn');
+    const saveImageBtn = document.getElementById('save-image-btn');
+    const resultDiv = document.getElementById('result');
+    const sensitivityValuesDiv = document.getElementById('sensitivity-values');
+    const header = document.getElementById('header');
+
+    const brandProfiles = {
+      samsung:   { general: 190, redDot: 175, scope2x: 198, scope4x: 180, sniper: 40, camera360: 32, button: 47 },
+      iphone:    { general: 182, redDot: 168, scope2x: 189, scope4x: 172, sniper: 46, camera360: 36, button: 49 },
+      tecno:     { general: 180, redDot: 160, scope2x: 185, scope4x: 170, sniper: 42, camera360: 28, button: 44 },
+      infinix:   { general: 177, redDot: 158, scope2x: 182, scope4x: 169, sniper: 41, camera360: 27, button: 43 },
+      xiaomi:    { general: 188, redDot: 170, scope2x: 195, scope4x: 178, sniper: 43, camera360: 30, button: 46 },
+      huawei:    { general: 183, redDot: 162, scope2x: 187, scope4x: 175, sniper: 42, camera360: 31, button: 45 },
+      oppo:      { general: 180, redDot: 163, scope2x: 186, scope4x: 174, sniper: 41, camera360: 29, button: 44 },
+      vivo:      { general: 179, redDot: 161, scope2x: 184, scope4x: 173, sniper: 40, camera360: 28, button: 43 },
+      android:   { general: 188, redDot: 177, scope2x: 197, scope4x: 179, sniper: 39, camera360: 30, button: 48 },
+      default:   { general: 185, redDot: 170, scope2x: 190, scope4x: 180, sniper: 40, camera360: 30, button: 45 }
+    };
+
+    function detectBrandProfile() {
+      const ua = navigator.userAgent.toLowerCase();
+      for (const brand in brandProfiles) {
+        if (ua.includes(brand)) {
+          return { name: brand.charAt(0).toUpperCase() + brand.slice(1), sensitivity: brandProfiles[brand] };
+        }
+      }
+      if (ua.includes("android")) return { name: "Android", sensitivity: brandProfiles.android };
+      if (ua.includes("iphone")) return { name: "iPhone", sensitivity: brandProfiles.iphone };
+      return { name: "Unknown Device", sensitivity: brandProfiles.default };
+    }
+
+    function generateAutoSensitivity() {
+      const { name, sensitivity: s } = detectBrandProfile();
+      header.textContent = `FFCensusHub (${name})`;
+
+      sensitivityValuesDiv.innerHTML = `
+        <div class="card">
+          <h3>Best Sensitivity</h3>
+          <strong>General:</strong> ${s.general}
+          <div class="bar" style="width: ${s.general / 2}%;"></div>
+          <strong>Red Dot:</strong> ${s.redDot}
+          <div class="bar" style="width: ${s.redDot / 2}%;"></div>
+          <strong>2x Scope:</strong> ${s.scope2x}
+          <div class="bar" style="width: ${s.scope2x / 2}%;"></div>
+          <strong>4x Scope:</strong> ${s.scope4x}
+          <div class="bar" style="width: ${s.scope4x / 2}%;"></div>
+          <strong>Sniper Scope:</strong> ${s.sniper}
+          <div class="bar" style="width: ${s.sniper / 2}%;"></div>
+          <strong>360° Camera:</strong> ${s.camera360}
+          <div class="bar" style="width: ${s.camera360 / 2}%;"></div>
+          <strong>Button:</strong> ${s.button}
+        </div>
+      `;
+
+      resultDiv.style.display = 'block';
+      saveImageBtn.style.display = 'block';
+    }
+
+    showSettingsBtn.addEventListener('click', generateAutoSensitivity);
+
+    saveImageBtn.addEventListener('click', () => {
+      html2canvas(sensitivityValuesDiv).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'ffcensus-sensitivity.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    });
+  </script>
+</body>
+</html>
